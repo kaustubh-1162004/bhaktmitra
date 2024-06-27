@@ -1,15 +1,20 @@
 {
   "name": "qr-scaner",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "I will be complete soon. t",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+   
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "html5-qrcode": "^2.3.8"
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "html5-qrcode": "^2.3.8",
+    "nodemailer": "^6.9.14",
+    "qrcode": "^1.5.3"
   }
 }
