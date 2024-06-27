@@ -1,49 +1,58 @@
+
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const QRCode = require('qrcode');
+require('dotenv').config();
 
 const app = express();
+const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Endpoint to handle form submission
 app.post('/submit', async (req, res) => {
-    const { name, age, address } = req.body;
-    const data = `Name: ${name}, Age: ${age}, Address: ${address}`;
+    const { name, phone, email, subject, message } = req.body;
 
-    try {
-        // Generate QR code
-        const qrCodeDataURL = await QRCode.toDataURL(data);
+   
+    const qrData = `Name: ${name}, Phone: ${phone}, Email: ${email}, Subject: ${subject}, Message: ${message}`;
 
-        // Send email with QR code
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER, // use environment variables for security
-                pass: process.env.EMAIL_PASS
+    const qrCodeUrl = await QRCode.toDataURL(qrData);
+
+    // Send email with QR code
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: process.env.CREATOR_EMAIL,
+        subject: 'New Contact Form Submission',
+        text: `Name: ${name}\nPhone: ${phone}\nEmail: ${email}\nSubject: ${subject}\nMessage: ${message}`,
+        attachments: [
+            {
+                filename: 'qrcode.png',
+                path: qrCodeUrl
             }
-        });
+        ]
+    };
 
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_USER, // send email to your own address
-            subject: 'Lost Person Details',
-            html: `<p>Details for a lost person:</p>
-                   <p>${data}</p>
-                   <img src="${qrCodeDataURL}"/>`
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        res.json({ message: 'Details submitted successfully!' });
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error(error);
+            res.status(500).send('Error sending email');
+        } else {
+            console.log('Email sent: ' + info.response);
+            res.status(200).send({ message: 'Form submitted successfully!' });
+        }
+    });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
 });
