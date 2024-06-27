@@ -1,10 +1,10 @@
 {
-  "name": "qr-scaner",
+  "name": "bhaktmitra",
   "version": "1.0.0",
   "description": "I will be complete soon. t",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node server.js"
    
   },
   "keywords": [],
